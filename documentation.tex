@@ -1,0 +1,151 @@
+\documentclass[czech]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[unicode]{hyperref}
+\usepackage{listings}
+\lstset{
+    frame=single,
+    breaklines=true,
+    postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}}
+}
+
+
+\begin{document}
+\title{Semestrální práce}
+\author{Josef Doležal}
+
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE České vysoké učení technické v Praze \par}
+	{\scshape\Large Fakulta Informačních technologií \par}
+	{\scshape\Large Obor Softwarové inženýrství \par}
+	\vspace{1.5cm}
+	{\scshape\Large Semestrální práce\par}
+	\vspace{2cm}
+	{\huge\bfseries Využití a zpracování dat o platbách na internetových obchodech\par}
+	\vspace{2cm}
+	{\Large\itshape Josef Doležal\par}
+	{\normalsize\itshape 3. ročník\par}
+
+	\vfill
+\end{titlepage}
+
+\newpage
+
+\section{Úvod}
+
+Pro svou semestrální práci k předmětu BI-BIG jsem si vybral problematiku nakupování na internetových obechodech. Ve větších obchodech tohoto typu vznikne během dne tisíce, mnohndy až desetitisíce objednávek \cite{pocet-objednavek}. Z tohoto důvodu přestávají být relační databáze dostatečně výkonné a je potřeba se uchýlit k jiné technologii.
+
+Jedním z možných řešení problému může být distribuovaná databáze, která je pro tento účel optimalizována. V svém řešení uvažuji jako distribuovanou databázi Apache Cassandra.
+
+Data o objednávkách jsou pro obchody důležitým ukazatelem. Mohou o vypovídat o zálibách, volnočasových aktivitách ale i zdravotním stavu zákazníka \cite{predikce-obchodu}. Internetový obchod může na základě takových informací přizpůsobit danému zákazníkovi svou nabídku. Aby byla konečná informace o zákazníkovi relevantní, je zapotřebí mít dostatečné množství dat, která se budou analyzovat.
+
+Analýza nad takovými daty může být pro velké množství zákazníků časově náročná. Z tohoto důvodu se nad databázemi staví vyhledávací index, který umožní po počátečním zaindexování databáze vyhledávat ve výrazně nižším čase.
+
+\section{Mé řešení}
+
+\subsection{Databáze}
+
+Při vytváření semestrální práce jsem využil technologie Docker pro zprovoznění databáze na lokálním počítači. Cassandru o jednom nodu jsem zprovoznil následujícím příkazem\cite{cassandra-github}:
+
+\begin{lstlisting}[language=bash]
+docker run --detach --name cassone poklet/cassandra
+\end{lstlisting}
+
+V tuto chvíli běží v Docker kontejneru Cassandra, napojit na ní je možné pomocí \lstinline{cqlsh} příkazu. Pro použití tohoto příkazu jsem vytvořil nový kontejner:
+
+\begin{lstlisting}[language=bash]
+docker run -it -v "$PWD:/var/data_src" --rm --net container:cassone poklet/cassandra cqlsh
+
+\end{lstlisting}
+
+Nyní je možné využívat plnohodnotné rozhraní příkazové řádky \lstinline{cqlsh} pro komunikaci s Cassandrou. Do kontejneru je namapovaný aktuální adresář z lokálního počítače, v kontejneru je umístěn ve složce \lstinline{/var/data_src}.
+
+\subsection{Zdroj dat}
+
+Ve své práci jsem využil dostupná data z webu BigDataBench\cite{bigdatabench}. Tyto data reprezentují objednávky v internetovém obchodu. Původní data nebyla vhodná pro vožení do Cassandry kvůli špatnému formátu. Data jsem očistil pomocí textového editoru o hlavičku - v příloze je možné zdrojové soubory v adresáři \lstinline{src}.
+
+Ze stažených datasetů jsem náhodně vybral 5000 záznamů, které jsem následně připravil pro vložení do cassandry:
+
+\lstinputlisting[language=bash, firstline=1, lastline=1]{prepare_data.sh}
+
+\lstinputlisting[language=bash, firstline=2, lastline=2]{prepare_data.sh}
+
+Uvedené příkazy jsou přiložené v souboru \lstinline{prepare_data.sh}. Výstupem jsou CSV soubory připravené na vložení do databáze.
+
+\subsection{Vložení dat}
+
+Pro vložení dat do Cassandry použijeme \lstinline{cqlsh} z Docker kontejneru.
+
+Jako první krok je nutné vytvoři keyspace:
+
+\lstinputlisting[language=sql, firstline=6, lastline=2]{setup.cql}
+
+Nyní máme vytvořený keyspace a je potřebné vytvořit tabulky, do který následně vložíme data.
+
+\lstinputlisting[language=sql, firstline=11, lastline=30]{setup.cql}
+
+V  tuto chvíli je připraven keyspace a je možné vložit data:
+
+\lstinputlisting[language=sql, firstline=32, lastline=36]{setup.cql}
+
+Keyspace je připraven pro další použití.
+
+\section{Využití dat}
+
+V úvodu práce jsem zmínil obecné využití dat. Využití dat z mé práce je možné v širokém měřítku. Obchod může analyzovaná data použít pro konkrétní cílení nabídek na zákazníka.
+
+Oproti doporučovacím systémům mají big data výhodu v tom, že další nabízené zboží se nezakládá jen na aktuální objednávce (co si např. zakoupili ostatní zákazníci s vybraným zbožím), ale i na historii nákupů. Zákazník tedy vidí více relevantních nabídek a je náchylnější ke koupi.
+
+Další možností je cílení pomocí geolokace. Z aktuální IP zákazníka je možné přibližně zjistit kde se nachází a nabízet zboží, které je v daném místě oblíbené nebo by mohlo být v budoucnu žádané (např. nabízení připojištění lidem ze záplavových oblastí).
+
+\section{Ukázka dat}
+
+V práci využívám následující tabulku, která reprezentuje jednu objednávku v systému. U objednávky se eviduje její ID, číslo, ID zákazníka, datum vytvoření a zaplacení, ip zákazníka. Předpokládá se, že výstup agregací bude zpracovávat externí systém, tedy ID zákazníka je dostačující údaj.
+
+\begin{table}[h!]
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+id int & code text    & buyer\_id text & created\_at text & payed\_at text & buyer\_ip     \\
+\hline
+19667  & 101208019976 & 22681          & 2016-12-03       & 2016-12-05     & 123.127.124.2 \\
+\hline
+
+\end{tabular}
+\end{table}
+
+Druhou důležitou tabulkou jsou produkty v objednávce. Podle produktů je možné analyzovat a predikovat chování zákazníka. Neméňe důležitým údajem jsou cena a množství. Tabulka obsahuje tyto sloupce: ID položky, ID objednávky, ID zboží, počet položek, obchodní cena, skutečná cena, cena objednávky.
+
+\begin{table}[h!]
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+id int & order\_id int & goods\_id int & goods\_number double & shop\_price double & goods\_price double & goods\_amount double \\ \hline
+425    & 292           & 1010060       & 999.00               & 10.400000          & 10.40               & 10389.600000         \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Popis technologií}
+
+Ve své semestrální práci předpokládám využití technologií Apache Cassandra a Apache Solr. Obě technologie jsou vedené jako open source a je tedy možné je využívat be nutnosti placení licence.
+
+Apache Cassandra je distribuovaná databáze navržená tak, aby zvládala obsluhovat velké množství dat. Tyto data umí Cassandra distribuovat na mnoho zařízení najednou, čímž zajišťuje vysokou dostupnost, rychlost načítání dat a v neposlední řadě mnoho prostoru pro data. Jedná se NoSQL databázi, tedy databázi kde data nejsou uložená v běžné tabulkové podobě ale v podobě "klíč - hodnota".
+
+Apache Solr je index nad databázím, v mém případě na Cassandrou. Solr umožňuje nad databází vyhledávat pomocí složitějších parametrů (např fulltext) a toto vyhledávání je díky indexaci velmi rychlé. Solr poskytuje REST API na tvorbu dotazů, díky tomu je možné vytvářet vlastní klientské aplikace.
+
+V práci předpokládám, že by systém byl napojený na další zdroje, které by dodaly informace, chybějící v tuto chvíli v databázi. Takovým zdrojem může být například systém, který překládá IP adresu zákazníka na geolokaci.
+
+\begin{thebibliography}{}
+\bibitem{pocet-objednavek}
+    Rekordní rok pro Alzu. Loni zvýšila tržby o čtvrtinu na 14,5 miliardy korun. \emph{Hospodářské noviny}. [online]. [cit. 2016-12-13]. Dostupné z: \url{http://byznys.ihned.cz/c1-65137080-alza-cz-zvysila-trzby-o-ctvrtinu-na-rekordnich-14-5-miliardy-vyridila-pet-milionu-objednave}
+\bibitem{predikce-obchodu}
+    How Target Figured Out A Teen Girl Was Pregnant Before Her Father Did. \emph{Forbes}. [online]. [cit. 2016-12-13]. Dostupné z \url{http://www.forbes.com/sites/kashmirhill/2012/02/16/how-target-figured-out-a-teen-girl-was-pregnant-before-her-father-did/#de48d2d34c62}
+\bibitem{cassandra-github}
+    Cassandra on Docker. \emph{GitHub}. [online]. [cit. 2016-12-13]. Dostupné z \url{https://github.com/pokle/cassandra}
+\bibitem{bigdatabench}
+    Downloads. \emph{BigDataBench}. [online]. [cit. 2016-12-13]. Dostupné z \url{http://prof.ict.ac.cn/BigDataBench/old/3.0/download.html}
+
+\end{thebibliography}
+
+\end{document}
