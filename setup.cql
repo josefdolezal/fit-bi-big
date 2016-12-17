@@ -29,7 +29,14 @@ CREATE TABLE order_items (
   goods_amount double
 );
 
+CREATE TABLE order_returns (
+  id int PRIMARY KEY,
+  return_date text,
+  order_id int
+);
+
 // Insert data
 
 COPY orders (id, code, buyer_id, created_at, payed_at, buyer_ip) FROM '/var/data_src/src/OS_ORDER.csv';
 COPY order_items (id, order_id, goods_id, goods_number, shop_price, goods_price, goods_amount) FROM '/var/data_src/src/OS_ORDER_ITEMS.csv';
+COPY order_returns (id, return_date, order_id) FROM '/var/data_src/src/OS_ORDER_RETURNS.csv';
