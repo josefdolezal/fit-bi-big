@@ -1,0 +1,7 @@
+# Use created keyspace
+USE dolezjo3;
+
+# Select all users from affected area (By IP)
+CREATE TABLE affected_users AS SELECT buyer_id, buyer_ip FROM orders where buyer_ip LIKE '218.*';
+
+CREATE TABLE latest_bought_products AS SELECT orders.buyer_id, order_items.goods_id FROM orders JOIN order_items ON (orders.id = order_items.order_id) WHERE orders.id > 50000;
