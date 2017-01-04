@@ -75,23 +75,41 @@ Ze stažených datasetů jsem náhodně vybral 5000 záznamů, které jsem násl
 
 Uvedené příkazy jsou přiložené v souboru \lstinline{prepare_data.sh}. Výstupem jsou CSV soubory připravené na vložení do databáze.
 
+Zvolený zdroj obsahoval pouze dva datasety, třetí jsem proto doplnil pomocí generátoru v jazyce swift.
+
 \subsection{Vložení dat}
 
 Pro vložení dat do Cassandry použijeme \lstinline{cqlsh} z Docker kontejneru.
 
-Jako první krok je nutné vytvoři keyspace:
+Jako první krok je nutné vytvoři keyspace a vybrat ho k používání:
 
-\lstinputlisting[language=sql, firstline=6, lastline=2]{setup.cql}
+\lstinputlisting[language=sql, firstline=1, lastline=9]{setup.cql}
 
-Nyní máme vytvořený keyspace a je potřebné vytvořit tabulky, do který následně vložíme data.
+Nyní máme vytvořený keyspace a je potřebné vytvořit tabulky, do kterých následně vložíme data.
 
-\lstinputlisting[language=sql, firstline=11, lastline=30]{setup.cql}
+\lstinputlisting[language=sql, firstline=11, lastline=36]{setup.cql}
 
-V  tuto chvíli je připraven keyspace a je možné vložit data:
+V tuto chvíli je připraven keyspace a je možné vložit data:
 
-\lstinputlisting[language=sql, firstline=32, lastline=36]{setup.cql}
+\lstinputlisting[language=sql, firstline=38, lastline=42]{setup.cql}
 
 Keyspace je připraven pro další použití.
+
+\section{Práce s daty}
+
+\subsection{Dotazy}
+
+\subsection{Agregace}
+
+Nad vložnými daty lze nyní spustit agregace. Pomocí technologie Apache Hive spustíme operaci, která provede potřebnou sekvenci map-reduce kroků a a výsledek uloží do nově vytvořené tabulky.
+
+Prvním selectem je vyhledání uživatelů podle geolokace. Uživatele z dané lokace (zde simulováno IP adresou) lze pak oslovit v velmi dobře cílenými obchodními sděleními. Takový use case může být například oslovení lidí z povodňových oblastí se slevou na pojištění.
+
+\lstinputlisting[language=sql, firstline=4, lastline=7]{hive/aggregations.hive}
+
+Druhý agregující dotaz vybírá produkty zakoupené v poslední době (omezením id) a uživatele, kteří produkt zakoupili. Lze tak sestavit mapu produktů, které jsou oblíbené v určité období nebo mapu aktivních uživatelů.
+
+\lstinputlisting[language=sql, firstline=4, lastline=7]{hive/aggregations.hive}
 
 \section{Využití dat}
 
@@ -123,6 +141,16 @@ Druhou důležitou tabulkou jsou produkty v objednávce. Podle produktů je mož
 \hline
 id int & order\_id int & goods\_id int & goods\_number double & shop\_price double & goods\_price double & goods\_amount double \\ \hline
 425    & 292           & 1010060       & 999.00               & 10.400000          & 10.40               & 10389.600000         \\ \hline
+\end{tabular}
+\end{table}
+
+V běžném provozu internetových obchodů se stává, že zákazníci zboží vrací. Tento fakt zachycuje třetí tabulka, skládající se z id, data vrácení a identifikátoru objednávky:
+
+\begin{table}[h!]
+\begin{tabular}{|l|l|l|}
+\hline
+id int & return\_date date & order\_id int \\ \hline
+425    & 2016-12-06          & 1010 \\ \hline
 \end{tabular}
 \end{table}
 
