@@ -1,0 +1,140 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+\usepackage{mathtools}
+\usepackage{graphicx}
+
+\title{BI-BIG - Databázové technologie pro BIG DATA 2016/17}
+\author{Josef Dolezal}
+
+\begin{document}
+
+\tableofcontents
+
+\newpage
+
+\section{Úvod}
+  \subsection{Základní principy}
+  \begin{description}
+    \item[Distribuovaný výpočetní výkon] Výpočet úlohy se rozdělí mezi více uzlů, je tedy možné paralelní zpracování.
+    \item[Distribuované uložiště] Data se uchovávají na více místech - zajištění redundance, propustnosti a dostupnosti.
+    Je ale složité zajistit konzistenci dat.
+  \end{description}
+
+  \subsection{CAP teorém}
+    Eric Brewer přisuzuje distribuovaným systémům tři základní vlastnosti, přitom ale systém může splňovat nejvýše dvě:
+    \begin{enumerate}
+      \item Konzistence
+        \begin{itemize}
+          \item Pro každý požadavek vrácen správný výsledek.
+          \item Uzly vrací stejná data (distrin. uložiště).
+          \item Výsledky výpočtu se od jednotlivých uzlů neliší (distrib. výkon).
+        \end{itemize}
+      \item Dostupnost
+        \begin{itemize}
+          \item Na každý požadavek přijde odpověď.
+          \item V praxi musí být systém vždy dostupný.
+        \end{itemize}
+      \item Tolerance výpadku
+        \begin{itemize}
+          \item Určuje jak se systém zachová v případě výpadku nějaké jeho části.
+        \end{itemize}
+    \end{enumerate}
+
+\section{NoSQL databáze}
+  \begin{itemize}
+    \item Map-Reduce framework. Např. Hadoop.
+    \item Kay-value uložiště. Např. Cassandra.
+    \item Dokumentové uložiště (jako key-value, ale valuje je document). Např. CouchDB, MongoDB
+  \end{itemize}
+
+  \subsection{Casssandra}
+    \begin{itemize}
+      \item Open source distribuovaná databáze.
+      \item Ukládá data mezi mnoha servery
+      \item Poskytuje vysokou dostupnost, nemá single point of failure.
+      \item Vyniká v rychlém zápisu.
+    \end{itemize}
+
+    \subsubsection{Základní funkce}
+      \begin{itemize}
+        \item Replikace - systém se sám replikuje podle zadaných kritérií.
+        \item Škálování - systém škáluje sám bez nutnosti zásahu do aplikace.
+        \item Nastavitelná konzistence  - lze na stavit pro jednotlivé dotazy za běhu aplikace.
+        \item Dotazovací jazyk CQL - \emph{Cassandra Query Language}
+      \end{itemize}
+
+      \begin{description}
+        \item[Gossip protokol] Každý uzel posílá informace každou vteřinu, udržuje tím informace o stavu uzlů. Informace jsou opatřeny timestampem.
+        \item[Koordinátor] Uzel, který \emph{Cassandra driver} vybere jako node, kterému posílá požadavky a dotazy.
+        \item[Partition token] Identifikuje, unikátně každý uzel a na něm partition v celém ringu. Je generovavaný hashovací funkcí.
+        \item[Partitioner] Určuje jakým způsobem jsou data a jejich repliky rozděleny na clusteru - (Fce. MurMur3, Random, ByteOrder).
+      \end{description}
+
+    \subsubsection{Pojmy}
+      \begin{description}
+        \item[Keyspace] Alternativa pojmu \emph{databáze} ze světa relačních databází.
+      \end{description}
+
+    \subsubsection{Cassandra data model}
+      \begin{itemize}
+        \item Wide-column stores - data přibývají do šířky.
+        \item Na nejspodnější úrovni se jedná o key-value storage.
+        \item Funguje na podobném principu jako hash table.
+        \item Nepoužívá se join.
+        \item Chceme li použít range scan, musíme mít row key a column key.
+      \end{itemize}
+
+    \subsection{CQL}
+      \begin{itemize}
+        \item Podobné SQL.
+        \item Stále nelze použít \emph{JOIN}.
+      \end{itemize}
+
+
+    \begin{description}
+      \item[Column] Sloupec je nejmenší entitou udržující data. Má název, hodnotu a timestamp vložení.
+      \item[Row] Identifikována pomocí jednoznačného row-key, nemá pevný formát.
+      \item[Column-family] Sdružuje řádkym které obsahují sloupce. Obdoba \emph{tabulky} z relačního světa. \emph{Mapa map}.
+      \item[Keyspace] Udržuje pohromadě všechny column-family a replikační faktor. Dá se přirovnat k \emph{databázi} z relačního světa.
+    \end{description}
+
+
+\section{Hadoop, Map-Reduce}
+  \begin{description}
+    \item[MapReduce] Model pro distribuované paralelní výpočty. Data se rozdělí na jednotlivé elementy, které se po rozdělení navzájem neovlivní.
+    Mapovací funkce převede vstupní elementy na výstupní elementy.
+    Kombinační funkce následně výstupní elementy do výstupní hodnoty.
+  \end{description}
+
+  \subsection{Hadoop}
+    Open source implementace MapReduce frameworku. Hadoop nabízí také svůj FS (HDFS) - to ale není plně distribuvaný FS. HDFS obsahuje master server, který obhospodařuje namespace.
+
+\section{Apache Hive, Pig a Solr}
+  \subsection{Apache Hive}
+    Infrastruktura pro těžení dat, postaveno nad Hadoopem. Jedná se o vrstvu, ktrá poskytuje abstrakci pomocí pseudo SQL.
+
+    \begin{itemize}
+      \item Dotazovací jazyk Hivu je HiveQL.
+      \item Nabízí podmnožinu SQL dotazů rozšířenou o specifické dotazy (obsahuje např. \emph{JOIN}, \emph{FROM <DOTAZ>}).
+      \item Neobsahuje standardní \emph{INSERT} do existující tabulky.
+        \begin{itemize}
+          \item Všechny inserty přepisují data.
+          \item Chybí také \emph{UPDATE} a \emph{DELETE}.
+        \end{itemize}
+    \end{itemize}
+
+  \subsection{Solr}
+    \begin{itemize}
+      \item Využívá Apachae Lucene.
+        \begin{itemize}
+          \item Knihovna pro získávání dat.
+          \item Podporuje synonyma, podobnost, ...
+        \end{itemize}
+      \item Index nad databází.
+      \item Poskytuje REST API.
+      \item Distribuované vyhledávání.
+    \end{itemize}
+
+
+\end{document}
