@@ -3,6 +3,7 @@
 \usepackage{a4wide}
 \usepackage{mathtools}
 \usepackage{graphicx}
+\usepackage{listings}
 
 \title{BI-BIG - Databázové technologie pro BIG DATA 2016/17}
 \author{Josef Dolezal}
@@ -77,6 +78,13 @@
       \end{description}
 
     \subsubsection{Cassandra data model}
+      \begin{description}
+        \item[Column] Sloupec je nejmenší entitou udržující data. Má název, hodnotu a timestamp vložení.
+        \item[Row] Identifikována pomocí jednoznačného row-key, nemá pevný formát.
+        \item[Column-family] Sdružuje řádkym které obsahují sloupce. Obdoba \emph{tabulky} z relačního světa. \emph{Mapa map}.
+        \item[Keyspace] Udržuje pohromadě všechny column-family a replikační faktor. Dá se přirovnat k \emph{databázi} z relačního světa.
+      \end{description}
+
       \begin{itemize}
         \item Wide-column stores - data přibývají do šířky.
         \item Na nejspodnější úrovni se jedná o key-value storage.
@@ -91,14 +99,78 @@
         \item Stále nelze použít \emph{JOIN}.
       \end{itemize}
 
+      \subsubsection{Create table}
+        \begin{listings}[language=cql]
+          CREATE TABLE orders (
+            id int PRIMARY KEY,
+            code text,
+            buyer_id text,
+            created_at text,
+            payed_at text,
+            buyer_ip text
+           );
+        \end{listings}
 
-    \begin{description}
-      \item[Column] Sloupec je nejmenší entitou udržující data. Má název, hodnotu a timestamp vložení.
-      \item[Row] Identifikována pomocí jednoznačného row-key, nemá pevný formát.
-      \item[Column-family] Sdružuje řádkym které obsahují sloupce. Obdoba \emph{tabulky} z relačního světa. \emph{Mapa map}.
-      \item[Keyspace] Udržuje pohromadě všechny column-family a replikační faktor. Dá se přirovnat k \emph{databázi} z relačního světa.
-    \end{description}
+      \subsubsection{Insert data}
+        \begin{itemize}
+          \item Neprovádí se kontrola existence řádku, jedná se tedy spíše o \emph{CREATE OR UPDATE}.
+          \item Lze použít \emph{IF NOT EXISTS}, ale zápis je pomalejší.
+        \end{itemize}
 
+        \begin{listings}[language=cql]
+          INSERT INTO orders (code, buyer_id, created_at)
+          VALUES ('AB1221', 1234, '2016-12-04');
+        \end{listings}
+
+      \subsubsection{Update data}
+        \begin{itemize}
+          \item Pomocí \emph{WHERE} klauzule lze vybrat řádek, ale musí se zadat všechny sloupce tvořící PK.
+        \end{itemize}
+
+        \begin{listings}[language=cql]
+          UPDATE orders
+          SET payed_at = '2017-01-01'
+          WHERE id = 5;
+        \end{listings}
+
+      \subsubsection{Delete data}
+        \begin{itemize}
+          \item Umožňuje odstranit jen vybrané sloupce.
+        \end{itemize}
+
+        \begin{listings}[language=cql]
+          DELETE FROM orders
+          WHERE id = 5;
+        \end{listings}
+
+      \subsubsection{Batch}
+        \begin{itemize}
+          \item Pomocí \emph{BATCH} lze seskupit více příkazů.
+          \item Šetří síťovou komunikace mezi klientem a serverem.
+          \item Může obsahovat pouse \emph{UPDATE}, \emph{INSERT}, \emph{DELETE}.
+        \end{itemize}
+
+      \subsection{Select data}
+        \begin{itemize}
+          \item Přečte jeden nebo více sloupců a řádků.
+          \item Select klauzule
+            \begin{itemize}
+              \item Určuje jaké sloupce mají být vráceny (buď seznam nebo znak *).
+            \end{itemize}
+          \item Selector
+            \begin{itemize}
+              \item Název sloupce nebo funkce jednoho nebo více sloupců.
+              \item Např \emph{COUNT(*)}.
+            \end{itemize}
+          \item V klauzuly \emph{WHERE} umožňuje výběr jen pokud jsou uvedeny všechny PK.
+          \item Chceme-li v rámci \emph{WHERE} klauzule filtrovat na základě více sloupců, je potřeba dodat \emph{ALLOW_FILTERING}.
+        \end{itemize}
+
+        \begin{listings}[language=cql]
+          SELECT id, buyer_id
+          FROM orders
+          WHERE id IN (5, 7, 15);
+        \end{listings}
 
 \section{Hadoop, Map-Reduce}
   \begin{description}
@@ -135,6 +207,5 @@
       \item Poskytuje REST API.
       \item Distribuované vyhledávání.
     \end{itemize}
-
 
 \end{document}
