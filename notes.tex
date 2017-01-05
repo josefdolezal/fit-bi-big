@@ -100,7 +100,7 @@
       \end{itemize}
 
       \subsubsection{Create table}
-        \begin{listings}[language=cql]
+        \begin{lstlisting}[language=sql]
           CREATE TABLE orders (
             id int PRIMARY KEY,
             code text,
@@ -109,7 +109,7 @@
             payed_at text,
             buyer_ip text
            );
-        \end{listings}
+        \end{lstlisting}
 
       \subsubsection{Insert data}
         \begin{itemize}
@@ -117,31 +117,31 @@
           \item Lze použít \emph{IF NOT EXISTS}, ale zápis je pomalejší.
         \end{itemize}
 
-        \begin{listings}[language=cql]
+        \begin{lstlisting}[language=sql]
           INSERT INTO orders (code, buyer_id, created_at)
           VALUES ('AB1221', 1234, '2016-12-04');
-        \end{listings}
+        \end{lstlisting}
 
       \subsubsection{Update data}
         \begin{itemize}
           \item Pomocí \emph{WHERE} klauzule lze vybrat řádek, ale musí se zadat všechny sloupce tvořící PK.
         \end{itemize}
 
-        \begin{listings}[language=cql]
+        \begin{lstlisting}[language=sql]
           UPDATE orders
           SET payed_at = '2017-01-01'
           WHERE id = 5;
-        \end{listings}
+        \end{lstlisting}
 
       \subsubsection{Delete data}
         \begin{itemize}
           \item Umožňuje odstranit jen vybrané sloupce.
         \end{itemize}
 
-        \begin{listings}[language=cql]
+        \begin{lstlisting}[language=sql]
           DELETE FROM orders
           WHERE id = 5;
-        \end{listings}
+        \end{lstlisting}
 
       \subsubsection{Batch}
         \begin{itemize}
@@ -166,11 +166,11 @@
           \item Chceme-li v rámci \emph{WHERE} klauzule filtrovat na základě více sloupců, je potřeba dodat \emph{ALLOW_FILTERING}.
         \end{itemize}
 
-        \begin{listings}[language=cql]
+        \begin{lstlisting}[language=sql]
           SELECT id, buyer_id
           FROM orders
           WHERE id IN (5, 7, 15);
-        \end{listings}
+        \end{lstlisting}
 
 \section{Hadoop, Map-Reduce}
   \begin{description}
