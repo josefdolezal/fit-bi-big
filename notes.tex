@@ -28,7 +28,7 @@
       \item Konzistence
         \begin{itemize}
           \item Pro každý požadavek vrácen správný výsledek.
-          \item Uzly vrací stejná data (distrin. uložiště).
+          \item Uzly vrací stejná data (distrib. uložiště).
           \item Výsledky výpočtu se od jednotlivých uzlů neliší (distrib. výkon).
         \end{itemize}
       \item Dostupnost
@@ -46,7 +46,7 @@
   \begin{itemize}
     \item Map-Reduce framework. Např. Hadoop.
     \item Kay-value uložiště. Např. Cassandra.
-    \item Dokumentové uložiště (jako key-value, ale valuje je document). Např. CouchDB, MongoDB
+    \item Dokumentové uložiště (jako key-value, ale valuje je document). Např. CouchDB, MongoDB.
   \end{itemize}
 
   \subsection{Casssandra}
@@ -163,7 +163,7 @@
               \item Např \emph{COUNT(*)}.
             \end{itemize}
           \item V klauzuly \emph{WHERE} umožňuje výběr jen pokud jsou uvedeny všechny PK.
-          \item Chceme-li v rámci \emph{WHERE} klauzule filtrovat na základě více sloupců, je potřeba dodat \emph{ALLOW_FILTERING}.
+          \item Chceme-li v rámci \emph{WHERE} klauzule filtrovat na základě více sloupců, je potřeba dodat \emph{ALLOW\_FILTERING}.
         \end{itemize}
 
         \begin{lstlisting}[language=sql]
@@ -188,7 +188,7 @@
 
     \begin{itemize}
       \item Dotazovací jazyk Hivu je HiveQL.
-      \item Nabízí podmnožinu SQL dotazů rozšířenou o specifické dotazy (obsahuje např. \emph{JOIN}, \emph{FROM <DOTAZ>}).
+      \item Nabízí podmnožinu SQL dotazů rozšířenou o specifické dotazy (obsahuje např. \emph{JOIN}, $FROM \, <DOTAZ>$).
       \item Neobsahuje standardní \emph{INSERT} do existující tabulky.
         \begin{itemize}
           \item Všechny inserty přepisují data.
