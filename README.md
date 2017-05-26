@@ -1,4 +1,4 @@
-# BI-BIG: Databázové technologie pro Big Data
+# BI-BIG: Databázové technologie pro Big Data [![Build Status](https://travis-ci.org/josefdolezal/fit-bi-big.svg?branch=master)](https://travis-ci.org/josefdolezal/fit-bi-big)
 
 Repozitář věnovaný předmětu BI-BIG, vyučovaný na FIT ČVUT (@FIT_CTU).
 Seznam materiálů k ostatním předmětům je v [samostatném repozitáři](https://github.com/josefdolezal/fit-cvut).
@@ -9,12 +9,14 @@ Seznam materiálů k ostatním předmětům je v [samostatném repozitáři](htt
 
 ## Studijní materiály
 Při přípravě na závěrečný semestrální test jsem vytvořil zápisky z prezentací.
-Zápisky jsou napsané v LaTeXu a zkompilované do [PDF](notes.pdf).
+Zápisky jsou napsané v LaTeXu a zkompilované do PDF.
 
 Jako další materiály doporučuji [kurz od DataStax](https://academy.datastax.com/resources/ds201-foundations-apache-cassandra).
 
+Veškeré `LaTeX`ové dokumenty jsou zkompilované umístěny na záložce [Releases](https://github.com/josefdolezal/fit-bi-big/releases).
+
 ## Semestrální práce
-Dokumentace k semestrální práci je v dokumentu [documentation.pdf](documentation.pdf), kde je
+Dokumentace k semestrální práci je v dokumentu `documentation.pdf`, kde je
 popsán způsob, jak semestrální práci vyzkoušet lokálně.
 
 ## Poznámka
