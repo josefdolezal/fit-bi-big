@@ -1,0 +1,21 @@
+language: python
+dist: trusty
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -y --no-install-recommends texlive-fonts-recommended texlive-latex-extra
+  texlive-fonts-extra dvipng texlive-latex-recommended texlive-lang-czechslovak texlive-generic-extra
+  lmodern latexmk latex-xcolor
+install:
+- pip install pygments
+script: make build
+deploy:
+  provider: releases
+  api_key:
+    secure: QiPk2k0sZPFH04rWXxThpDP02nQoRVchCzapY52+8QnlwuKUktOS+Kg1g0KuRAkWDQIG0EEx0tOGZiRpKDPKpj4lR3S3bDIt10XzNzNjO2T/PFhJaLvoLmDSt1vzS12PrwHR/8zAHhWlgpsiXgKoCTk8Q/vQp7RMavp1pYKG6765rmxZBmtrYKcNQadckCYa8qH8W/fJdkZe/7xQw8DEsuNcOOz6RhWR2qb47CuufKvDFz0J1b0JCsaprThIUeqM2h+Ep1ssANpd6y5J4mGOkUlTwotCUZcTJRhYc26yZp1SHYLA7o3GNRBrZQOrFaGTZBgQLFQ7kw0mw0Kn6mZ2XMfbQTHxNWiNfqmtmWHT50buVkIl4lPshQizU1iMSCswutCW4hQZFaz6K8DRAezCy83W+IBXmV8mvQNImIvps1p6H+i06YSDz2PO/IuRpv/Rk6rmdwXMhnAaDh5yhzcxKNuTxNrNuV805wVZUJc3iQUZcbScmDYn099Z7LQNkA0IWHi1nNNapdWenDOi4S0Ue8ODKusq4OCBEKCwl0UTyNXvT3YWC1/XNk8u6jxXq+oQ0VYqvzReleB5CbEBoT/xK5uN+nth5UOGORq0DCPoiSDk+JeX0vC93W4sX64tEYcAGnv6zb/a1Ub7A1qCAEsRQTnN9e09gyEvtgj1aQuyXjk=
+  file:
+    - documentation.pdf
+    - notes.pdf
+  skip_cleanup: true
+  on:
+    repo: josefdolezal/fit-bi-big
+    tags: true
